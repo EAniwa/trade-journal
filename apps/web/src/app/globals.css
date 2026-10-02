@@ -1425,3 +1425,36 @@ body.dashboard-is-dragging * {
   max-width: 100%;
   border-radius: 6px;
 }
+
+/* Mobile trading workspace: safe-area aware and usable with either theme. */
+.journal-overview-intro { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:32px 24px; background:radial-gradient(ellipse at 90% 0%,color-mix(in srgb,var(--brand) 14%,transparent),transparent 65%); }
+.journal-eyebrow { color:var(--brand); font-size:10px; font-weight:700; letter-spacing:.18em; margin-bottom:10px; }
+.journal-overview-intro h1 { font-size:clamp(30px,4vw,46px); line-height:1.1; font-weight:650; letter-spacing:-.045em; }
+.journal-overview-intro h1 + p { font-size:13px; color:var(--muted-foreground); margin-top:10px; }
+.journal-reflect-link { border:1px solid var(--border); border-radius:999px; padding:12px 18px; font-size:12px; white-space:nowrap; background:var(--card); }
+.journal-reflect-link:hover { border-color:var(--brand); }
+.journal-bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:35; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; padding:8px 12px calc(8px + env(safe-area-inset-bottom)); border-top:1px solid var(--border); background:color-mix(in srgb,var(--background) 96%,transparent); backdrop-filter:blur(20px); }
+.journal-bottom-link { min-height:48px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border-radius:14px; color:var(--muted-foreground); font-size:10px; font-weight:600; }
+.journal-bottom-link.is-active { color:var(--brand); background:color-mix(in srgb,var(--brand) 10%,transparent); }
+.journal-bottom-link:focus-visible, .journal-reflect-link:focus-visible { outline:2px solid var(--ring); outline-offset:3px; }
+@media(max-width:1023px) {
+  .journal-main { padding-bottom:calc(88px + env(safe-area-inset-bottom)); }
+  .journal-overview-intro { padding:24px 16px; align-items:flex-start; }
+  .journal-reflect-link { padding:10px 12px; font-size:11px; }
+  .journal-overview-intro h1 + p { max-width:220px; line-height:1.6; }
+  .journal-main [data-slot="card"] { border-radius:18px; }
+}
+@media(max-width:430px) { .journal-overview-intro { flex-direction:column; gap:16px; } }
+
+.dark { --background:#080d15; --card:#101823; --popover:#101823; --border:#202e40; --accent:#182638; --muted:#131e2c; --brand:#59bcff; --profit:#5ed1a5; --loss:#ff7d87; --viz-surface:#101823; --gridline:#202e40; }
+.journal-desktop-sidebar { background:var(--card); }
+.journal-sidebar-nav-link[aria-current="page"] { box-shadow:inset 3px 0 0 var(--brand); }
+.journal-mobile-header { padding-top:env(safe-area-inset-top); height:calc(56px + env(safe-area-inset-top)); }
+
+@media(min-width:1024px) { .journal-bottom-nav { display:none; } }
+
+.journal-mobile-trades { display:none; }
+.journal-trade-card { display:flex; gap:14px; align-items:flex-start; padding:18px 16px; border-bottom:1px solid var(--border); }
+.journal-trade-card:last-child { border-bottom:0; }
+.journal-trade-card > button { margin-top:4px; }
+@media(max-width:767px) { .journal-mobile-trades { display:block; } .journal-desktop-trades { display:none; } }

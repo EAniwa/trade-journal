@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 export const metadata: Metadata = {
-  title: "Trade Journal",
+  title: "Tradeform — Turn trades into progress",
   description:
     "The open-source trade journal — broker sync, deep analytics, daily journaling, and AI-native reflection. Self-hosted, free forever.",
 };

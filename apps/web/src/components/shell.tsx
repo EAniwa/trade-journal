@@ -145,7 +145,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     if (value) filterQuery.set(key, value);
   }
   if (search.get("range")) filterQuery.set("range", search.get("range")!);
-  if (pathname === "/login") return <>{children}</>;
+  if (pathname === "/login" || pathname.startsWith("/workspace")) return <>{children}</>;
   const navigation = (collapsed = false) => (
     <nav
       aria-label="Journal navigation"
@@ -287,6 +287,20 @@ export function Shell({ children }: { children: React.ReactNode }) {
         {footer}
       </aside>
       <PageTransition>{children}</PageTransition>
+      <nav aria-label="Quick navigation" className="journal-bottom-nav lg:hidden">
+        {[
+          { href: "/", label: "Overview", icon: LayoutDashboard },
+          { href: "/trades", label: "Trades", icon: ListOrdered },
+          { href: "/journal", label: "Journal", icon: NotebookPen },
+          { href: "/reports", label: "Insights", icon: BarChart3 },
+        ].map(({ href, label, icon: Icon }) => {
+          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          return <Link key={href} href={filterQuery.size ? `${href}?${filterQuery}` : href}
+            aria-current={active ? "page" : undefined} className={cn("journal-bottom-link", active && "is-active")}>
+            <Icon aria-hidden="true" className="h-5 w-5" /><span>{label}</span>
+          </Link>;
+        })}
+      </nav>
     </div>
   );
 }

@@ -1,0 +1,13 @@
+{
+  "register_login": "passed",
+  "user_isolation": "passed",
+  "worker_trade_import": "passed",
+  "trade_count": 1,
+  "notes_persistence": "passed",
+  "remote_overview_ms": {
+    "p50": 134.93,
+    "p95": 222.49,
+    "samples": 20
+  },
+  "logout_revocation": "passed"
+}

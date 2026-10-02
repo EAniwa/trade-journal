@@ -13,6 +13,8 @@ export type ExecutionSource = "sync" | "import" | "manual";
 
 /** Source identity and reported facts carried by statement importers. */
 export interface ImportMetadata {
+  /** Explicit contract size reported by the broker statement. */
+  contractMultiplier?: number;
   id: string;
   /** Keeps separately reported positions from being netted together. */
   group?: string;
@@ -115,13 +117,15 @@ export interface RoundTrip {
 
 /** User-authored context attached to a round trip (stored by the app, joined for analytics). */
 export interface TradeAnnotations {
+  /** User-supplied sector label; absent means unclassified. */
+  sector?: string;
   tags?: string[];
   mistakes?: string[];
   playbook?: string;
   rating?: number;
   /** Price levels planned at entry; enable R-multiple analytics. */
-  stopLoss?: number;
-  profitTarget?: number;
+  stopLoss?: number | null;
+  profitTarget?: number | null;
   reviewed?: boolean;
 }
 

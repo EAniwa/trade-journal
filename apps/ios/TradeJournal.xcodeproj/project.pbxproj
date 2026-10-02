@@ -1,0 +1,210 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00000000000000000000001E /* TradeJournalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000014 /* TradeJournalApp.swift */; };
+		00000000000000000000001F /* JournalWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* JournalWebView.swift */; };
+		000000000000000000000020 /* ServerAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000016 /* ServerAddress.swift */; };
+		000000000000000000000031 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000030 /* Assets.xcassets */; };
+		000000000000000000000034 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000033 /* LaunchScreen.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		000000000000000000000006 /* TradeJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TradeJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000014 /* TradeJournalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TradeJournalApp.swift; sourceTree = "<group>"; };
+		000000000000000000000015 /* JournalWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalWebView.swift; sourceTree = "<group>"; };
+		000000000000000000000016 /* ServerAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerAddress.swift; sourceTree = "<group>"; };
+		000000000000000000000030 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		000000000000000000000033 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		000000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000003 /* TradeJournal */,
+				000000000000000000000004 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		000000000000000000000003 /* TradeJournal */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000033 /* LaunchScreen.storyboard */,
+				000000000000000000000030 /* Assets.xcassets */,
+				000000000000000000000014 /* TradeJournalApp.swift */,
+				000000000000000000000015 /* JournalWebView.swift */,
+				000000000000000000000016 /* ServerAddress.swift */,
+			);
+			path = TradeJournal;
+			sourceTree = "<group>";
+		};
+		000000000000000000000004 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000006 /* TradeJournal.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		000000000000000000000005 /* TradeJournal */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000000000000000000000009 /* Build configuration list for PBXNativeTarget "TradeJournal" */;
+			buildPhases = (
+				000000000000000000000007 /* Sources */,
+				000000000000000000000032 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TradeJournal;
+			productName = TradeJournal;
+			productReference = 000000000000000000000006 /* TradeJournal.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		000000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 2620;
+			};
+			buildConfigurationList = 000000000000000000000008 /* Build configuration list for PBXProject "TradeJournal" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 000000000000000000000002;
+			productRefGroup = 000000000000000000000004 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				000000000000000000000005 /* TradeJournal */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		000000000000000000000032 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000031 /* Assets.xcassets in Resources */,
+				000000000000000000000034 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		000000000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00000000000000000000001E /* TradeJournalApp.swift in Sources */,
+				00000000000000000000001F /* JournalWebView.swift in Sources */,
+				000000000000000000000020 /* ServerAddress.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		00000000000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		00000000000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		00000000000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V672PXCS72;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TradeJournal/Info.plist;
+				JOURNAL_SERVER_URL = "http://192.168.2.39:3002";
+				"JOURNAL_SERVER_URL[sdk=iphonesimulator*]" = "http://localhost:3002";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tradejournal.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		00000000000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V672PXCS72;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TradeJournal/Info.plist;
+				JOURNAL_SERVER_URL = "";
+				"JOURNAL_SERVER_URL[sdk=iphonesimulator*]" = "http://localhost:3002";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tradejournal.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		000000000000000000000008 /* Build configuration list for PBXProject "TradeJournal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00000000000000000000000A /* Debug */,
+				00000000000000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000000000000000000000009 /* Build configuration list for PBXNativeTarget "TradeJournal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00000000000000000000000C /* Debug */,
+				00000000000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 000000000000000000000001 /* Project object */;
+}

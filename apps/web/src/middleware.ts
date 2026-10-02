@@ -7,6 +7,12 @@ import { NextResponse, type NextRequest } from "next/server";
  * handlers gate data.
  */
 export const middleware = (request: NextRequest) => {
+  if (process.env.JOURNAL_HOSTED_ONLY === "1") {
+    const path=request.nextUrl.pathname;
+    if(path.startsWith("/branding/") || path.startsWith("/workspace") || (path.startsWith("/api/hosted/") || path.startsWith("/api/oauth/google/"))) return NextResponse.next();
+    if(path.startsWith("/api/")) return NextResponse.json({error:"This endpoint is not available in hosted mode"},{status:404});
+    return NextResponse.redirect(new URL("/workspace",request.url));
+  }
   if (!process.env.JOURNAL_PASSWORD) return NextResponse.next();
   const { pathname } = request.nextUrl;
   if (pathname === "/login" || pathname === "/api/auth") return NextResponse.next();

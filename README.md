@@ -1,290 +1,195 @@
-<div align="center">
+# Tradeform
 
-<img src=".github/assets/banner.svg" alt="Trade Journal: the open-source trade journal" width="100%" />
+**Turn trades into progress.**
 
-<br/>
+Tradeform is an account-focused trading journal with a responsive web workspace, an iOS app, and a multi-user PostgreSQL backend. It builds on the MIT-licensed [LuxAlgo Trade Journal](https://github.com/LuxAlgo/trade-journal) and shares its execution parsers, round-trip engine, metrics and Edge Score calculations.
 
-# Trade Journal
+This repository is the working Tradeform fork. The original SQLite application remains in the codebase; its broader features are described in the [original project guide](docs/upstream-readme.md). Those features are not all available in the new hosted workspace.
 
-Broker sync, deep analytics, a P&L calendar, trade replay, prop firm tracking, daily journaling with voice dictation, and AI reflection. Run it locally, or use it free inside LuxAlgo.
+## Current experience
 
-Trade Journal is a [LuxAlgo](https://luxalgo.com) open-source project.
+Register with an email and password or sign in, then land on **Overview**. Pick a broker account to see only that account’s performance and trades. The account picker also offers **Set up a new broker account**.
 
-[![npm](https://img.shields.io/npm/v/@luxalgo/journal-core?label=npm&color=white)](https://www.npmjs.com/package/@luxalgo/journal-core)
-[![License](https://img.shields.io/badge/license-MIT-white)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/lang-TypeScript-white)](packages/core/src/types.ts)
-[![SQLite](https://img.shields.io/badge/db-SQLite-white)](#quickstart)
+| Tab | Available functionality |
+| --- | --- |
+| Overview | Account selector; day, week, two weeks, month, three months, six months, year and all-time filters; end date; equity chart; net P&L, money made/lost, win rate, profit factor, drawdown, fees, symbol and sector breakdowns, and performance patterns. |
+| Trades | Account-specific history with cursor pagination; trade details and editable reviews, sector, stop loss and profit target. |
+| Journal | Manual trade entry and dated reflection notes belonging to the selected account. |
+| Import | CSV statement upload into a chosen account; statement timezone; background job status; duplicate detection and a link to imported trades. |
+| Settings | Broker account creation, editing and permanent deletion; daytime/nighttime appearance; timezone and other journal preferences; sign out. |
 
-[Homepage](https://www.luxalgo.com/trade-journal/) · [Quickstart](#quickstart) · [Features](#features) · [Screenshots](#screenshots) · [How it works](#how-it-works) · [Migrate](#migrating-from-tradezella-or-tradervue) · [Edge Score](docs/edge-score.md) · [Contributing](CONTRIBUTING.md)
+Deleting a broker account requires a separate confirmation warning. It permanently removes that account’s fills, trades, imports, reviews and account journal entries. Cancelling sends no deletion request. This deletes a **broker account**, not the user’s login identity.
 
-</div>
+The iOS app has the approved mint TF icon, branded splash screen and tagline. It opens its configured backend automatically and retains valid login cookies between launches. Users do not type a hosting address or receive bundled passwords.
 
----
-
-**Record every trade. See what actually works.** Connect a broker, drop in a statement export, or add trades manually from the dashboard. Trade Journal rebuilds your history into round-trip trades, a P&L calendar, deep analytics, and a daily journal you can type, dictate, or ask questions of with your own AI. Your journal lives in a local SQLite database; broker sync, market data, and AI connect to the services you choose.
-
-<img src=".github/assets/screenshot-dashboard.png" alt="Trade Journal dashboard in dark mode with demo trades, P&L gauges, Edge Score v2, equity curve, and monthly calendar" width="100%" />
-
-_Dashboard with generated demo data. All screenshots below use synthetic records, not a real trading account._
-
-> ⚠️ **Early release.** APIs and schema may still move before 1.0. Parser validation varies by format, from synthetic fixtures to cross-checked field sources; per-format status lives in [docs/importers.md](docs/importers.md).
-
-## Quickstart
-
-> **Prefer not to self-host?** A free hosted journal is available inside [LuxAlgo](https://app.luxalgo.com), alongside Quant Charts. Everything below is for running your own copy; this README describes the code in this checkout. See the [platform announcement](https://www.luxalgo.com/blog/luxalgo-charting-platform/) for hosted product context.
-
-```bash
-git clone https://github.com/LuxAlgo/trade-journal
-cd trade-journal
-pnpm install --frozen-lockfile
-pnpm dev
-# http://localhost:3000
-```
-
-Requirements: **Node 22+** and **pnpm 11.0.8** (the version pinned in `package.json`). First run creates the SQLite database and applies additive schema upgrades automatically. No migration tool, no setup wizard, no account. With the commands above, local data lives in `apps/web/data/`.
-
-For smooth everyday use or UI reviews, stop the development server and run `pnpm preview`.
-This builds the app once, then serves the optimized production version at the same address,
-using the same local data. Unlike `pnpm dev`, it does not compile each page on its first
-visit or hot-reload code edits. After code changes, stop it and rerun `pnpm preview` to
-rebuild; use `pnpm start` to reuse an existing build. Switch back to `pnpm dev` when editing.
-Run only one mode at a time, since development and production share the build directory.
-
-### Try it with demo data
-
-On an empty dashboard, choose **Load demo data** to create a separate demo account with about 90 days of generated trades. You can remove that account later in **Accounts**.
-
-To try statement import, use [`docs/samples/demo-trades-tradingview.csv`](docs/samples/demo-trades-tradingview.csv) in **Import → File upload**. It contains synthetic TradingView paper-trading fills across 13 symbols, from March 2025 through September 2026. Review the detected format, timezone, warnings, and preview before importing.
-
-The **Prop firms** page has its own **Load demo data** button: a read-only simulation of fictional firms, evaluation costs, and payouts. That preview stays in browser memory and does not write financial records.
-
-### Docker
-
-```bash
-docker compose up -d
-# http://localhost:3000, data persisted in ./data on the host
-```
-
-### Configuration (all optional)
-
-| Env var             | Effect                                                                                                   |
-| ------------------- | -------------------------------------------------------------------------------------------------------- |
-| `JOURNAL_PASSWORD`  | Require a password; recommended when accessible beyond localhost                                         |
-| `JOURNAL_SECRET`    | Encryption key source for credentials at rest (default: generated key file in the data dir)              |
-| `JOURNAL_DATA_DIR`  | Database, attachments, and local encryption key directory (default `./data` relative to the app process) |
-| `ANTHROPIC_API_KEY` | Anthropic AI key via env instead of the Settings page                                                    |
-| `OPENAI_API_KEY`    | OpenAI AI key via env instead of the Settings page                                                       |
-
-Set these in the process environment or in `apps/web/.env.local` for local Next.js runs; the root [`.env.example`](.env.example) documents the optional values. For Docker, configure the service environment in [`docker-compose.yml`](docker-compose.yml).
-
-For AI, open **Settings → AI**, select **Anthropic** or **OpenAI**, enter your API key, and choose **Save AI settings**. OpenAI defaults to `gpt-4.1-mini`; you can enter another text model ID available to your account. Each provider keeps its own encrypted key and model choice. Existing Anthropic settings continue to work. An OpenAI-only environment setup selects OpenAI automatically; with both keys present, Anthropic remains the default until you save a provider choice. Environment keys override saved keys and must be changed on the server. Saving settings does not make a model request or verify account access.
-
-Deploy anywhere a Node process and a persistent disk exist: Docker, Railway, Fly.io, a small VPS. Serverless platforms without a disk need an external database, which this release does not support. SQLite on disk is the point.
-
-Optional historical market data powers estimated MAE/MFE and candle replay on closed trades, with Vela™ rendering the charts. Configure a connection or upload candle CSVs in **Settings → Market data**. No provider is enabled or selected by default. See [Market data and replay](#market-data-and-replay) below and the [market data guide](docs/market-data.md) for setup, calculation definitions, and coverage limits.
-
-The **Prop firms** sidebar tracks evaluation/reset costs, refunds, payout requests, and actual receipts across your own firms and accounts. It includes cash ROI, partial payouts, reversals, renewal reminders, attachments, and generic CSV import/export. See [Prop firm tracking](#prop-firm-tracking) below and the [prop firm guide and research](docs/prop-firms.md) for workflows and metric definitions.
-
-### Add a trade manually
-
-Choose **Add trade** on the dashboard to open the entry form. Select or create a manual account, enter the symbol, and add your buy and sell executions with their date, time, quantity, price, and optional fee. Save an entry alone for an open position, or include the exit for a closed trade. Use **Add execution** for partial fills or additional legs. Dates and times use your device's timezone.
-
-The optional **Notes** field supports Markdown and saves with the trade. When adding fills to an existing position, new notes append to its existing notes. After saving, the dashboard refreshes automatically. The same form is available under **Import → Manual**.
-
-## Why this exists
-
-A trade journal is two things: a **verified record** of what you actually did, and the **reflection** that turns that record into better trading. Trade Journal keeps the record on your own machine and opens the reflection layer to any tool you choose, including your own AI.
-
-- **You control your connections.** Broker, market-data, and saved AI credentials are encrypted at rest with AES-256-GCM. Your server uses them to contact the provider you configure, without a LuxAlgo credential proxy.
-- **Your numbers are auditable.** The [Edge Score](docs/edge-score.md) is a documented, versioned formula, not a proprietary black box. Every metric is open source and unit-tested.
-- **Your journal is portable.** Export trades as CSV, journal records as JSON, and reviews as PDF or PNG. Back up the data directory to retain attachments and the full local state; see [Export and backup](#export-and-backup).
-
-## How it works
-
-One primitive drives everything: a raw **execution** (a fill). Executions come in from broker sync, statement imports, or manual entry; the round-trip engine turns them into trades; every surface reads from there.
+## Architecture
 
 ```mermaid
 flowchart LR
-    BS["Broker sync (broker-sdk)"] --> EX["Executions (deduped fills)"]
-    IM["14 documented statement formats + CSV mapper"] --> EX
-    MN["Manual entry"] --> EX
-    EX --> RT["Round-trip engine (FIFO / LIFO / WAVG)"]
-    RT --> D["Dashboard + calendar"]
-    RT --> J["Daily journal + voice"]
-    RT --> R["Reports + Edge Score"]
-    RT --> AI["AI reflection"]
-    MD["Optional provider / candle CSV"] --> TR["Trade replay + estimated MAE/MFE"]
-    RT --> TR
-    PC["Manual prop entries / cash CSV"] --> PF["Prop firm cash ledger"]
+    IOS[SwiftUI / WKWebView] --> WEB[Next.js workspace]
+    BROWSER[Web browser] --> WEB
+    WEB --> PROXY[Same-origin hosted API proxy]
+    PROXY --> API[Fastify API]
+    API --> DB[(PostgreSQL / private Supabase schema)]
+    WORKER[Background import worker] --> DB
+    WORKER --> ENGINE[Shared parsers and round-trip engine]
 ```
 
-## Features
+- **Web:** Next.js 15 and React. The Tradeform workspace lives at `/workspace`. The proxy keeps database credentials and service connections on the server.
+- **API:** Fastify with pooled PostgreSQL connections, validated inputs and private email sessions. The browser receives an HttpOnly session cookie; logout revokes the session.
+- **Database:** Ordinary PostgreSQL, with a private `tradeform` schema on the configured Supabase project. Transaction-scoped owner identity, forced row-level security and restricted API/worker roles isolate users.
+- **Worker:** Persistent import jobs, idempotency, atomic fill insertion, leases, retries and crash recovery. Account-level locking protects conflicting writes. Trade calculations use the shared core engine.
+- **iOS:** SwiftUI shell around the same workspace, using WKWebView and persistent website storage. It requires a reachable server and is not an offline native rewrite.
 
-|                          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Broker sync**          | Read-only sync via [`@luxalgo/broker-sdk`](https://github.com/LuxAlgo/broker-sdk): Alpaca, Binance, Bybit, Coinbase, Kraken, OKX, Tradier, IBKR Flex, Hyperliquid, Questrade, Topstep, Trading212, Webull, Crypto.com, E*TRADE, Public, Charles Schwab, TradeStation, tastytrade, Robinhood Crypto, Gemini, and KuCoin. Connect forms render straight from SDK metadata.                                                                                                                                                                                   |
-| **Statement import**     | **14 documented formats**, auto-detected: **TradeZella** and **Tradervue** (CSV migration), TradingView (paper and strategy exports), MetaTrader 4 and 5, ThinkorSwim, IBKR (activity + Flex), NinjaTrader, Tradovate, TopstepX, Webull, DAS Trader, plus a column mapper for any other CSV. Matching execution records dedupe within an account; review warnings and skipped rows before committing an import. Have an export we don't recognize? Open an issue with an anonymized sample; real files are the most useful contribution this repo can get. |
-| **Round-trip engine**    | Flat-to-flat position cycles from raw fills. FIFO / LIFO / weighted-average per account. Partial fills, scale-ins, flips, futures multipliers. Annotations survive rebuilds.                                                                                                                                                                                                                                                                                                                                                                               |
-| **Analytics**            | Net/gross P&L, win and day-win rates, profit factor, expectancy, R multiples, streaks, drawdown and recovery, profit concentration, duration/time-of-day/weekday performance, per-symbol/tag/mistake/playbook breakdowns. Advanced filters on every dimension, comparison groups, and a two-way cross-analysis matrix. Reports also include rolling performance trends and a trade explorer scatter plot, with saved MAE/MFE estimates where available.                                                                                                    |
-| **Dashboard**            | P&L calendar with weekly totals, cumulative and daily P&L, gauges, the open **Edge Score v2** radar, open positions, time-of-day performance. Drag cards to rearrange, hide what you don't use, save named layouts. Calendar insights highlight daily patterns. Light/dark themes, a collapsible sidebar, and mobile navigation support smaller screens.                                                                                                                                                                                                   |
-| **Trade pages**          | Charted on [Vela](https://www.npmjs.com/package/@luxalgo/vela) with entry/exit markers and P&L labels: fill paths from recorded executions, optional user-selected market candles, and trade replay. Estimated MAE/MFE, running P&L, executions, ratings, stops/targets, tags, mistakes.                                                                                                                                                                                                                                                                   |
-| **Daily journal**        | Day stats, intraday P&L curve, autosaving Markdown notes with templates and attachments (images, PDFs). Type them or **dictate** them with browser speech recognition (no journal API key required; browser support and speech processing vary).                                                                                                                                                                                                                                                                                                           |
-| **Notebook & playbooks** | Folders, search, tags, trade links; named setups with rule checklists scored per trade, with adherence and followed-vs-broken performance in Reports.                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **AI reflection**        | Bring your own Anthropic or OpenAI API key: session recaps, per-trade critiques, "ask your journal" over your own aggregates. Key encrypted at rest; requests go from your server to the model, nowhere else.                                                                                                                                                                                                                                                                                                                                              |
-| **Routines & misses**    | Pre-, during- and post-session routines with weekday schedules and a 13-week history; a missed-opportunity log kept out of your trading metrics.                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Journal defaults**     | Configure breakeven tolerance, plus fee and stop/target rules per account and symbol; set timezone and contract multipliers for consistent calculations.                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Prop firms**           | Evaluation and reset expenses, refunds, payout requests, partial receipts, reversals, cash ROI, account phases, renewal reminders, attachments, and generic cash CSV import/export. Separate from trade P&L.                                                                                                                                                                                                                                                                                                                                               |
-| **Privacy & export**     | Privacy mode masks every monetary value (charts keep their shape) and persists across tabs. Trades export to CSV, reviews to PDF or PNG, and journal records to JSON; credentials, candle datasets, and attachment binaries are excluded from that export.                                                                                                                                                                                                                                                                                                 |
+Supabase currently supplies **database hosting**. Tradeform’s users are stored in `tradeform.journal_users`, not Supabase `auth.users`. Do not set `SUPABASE_URL` simply to connect the database: that setting changes the authentication verifier and requires a separate auth integration.
 
-IBKR broker sync uses **Settings → Journal → Default import timezone** for Flex
-timestamps without an offset. Existing synced accounts with unknown or different
-timezone provenance require recovery into a separate account; see
-[IBKR timezone recovery](docs/importers.md#ibkr-broker-sync-and-timezone-recovery).
+## Repository layout
 
-## Screenshots
+| Path | Purpose |
+| --- | --- |
+| `apps/web` | Tradeform workspace, hosted proxy, OAuth routes and original SQLite application. |
+| `apps/api` | PostgreSQL API, worker, migrations, Supabase transfer utility and integration tests. |
+| `apps/ios` | Xcode project, SwiftUI/WebKit app, native assets and URL configuration tests. |
+| `packages/core` | Executions, round trips, trade metrics and Edge Score calculations. |
+| `packages/importers` | CSV/HTML statement detection and parsers, including TD activity CSV support. |
+| `scripts/hosted-postgres.py` | Disposable local PostgreSQL development/test setup. |
+| `scripts/hosted-local.py` | API, worker, preview and isolated test launcher. |
+| `docs` | Architecture, migration, OAuth, branding, import formats and measured verification results. |
 
-Captured from the local app with generated demo trades and fictional prop firm records. Expand a view to inspect it at full width.
+## Requirements
 
-<details>
-<summary><strong>Reports — rolling performance trends</strong></summary>
-
-<img src=".github/assets/screenshot-reports.png" alt="Reports performance trends with rolling win rate, average trade P&L, and the largest winning and losing demo trades" width="100%" />
-
-Compare recent rolling results with the full trading history. Reports also offer a trade explorer, breakdowns, comparison groups, and cross-analysis.
-
-</details>
-
-<details>
-<summary><strong>Calendar — daily results in light mode</strong></summary>
-
-<img src=".github/assets/screenshot-calendar.png" alt="Light-mode P&L calendar with synthetic daily results, weekly totals, and calendar insights" width="100%" />
-
-Review trading days and weekly totals, then open a day to inspect its trades and journal.
-
-</details>
-
-<details>
-<summary><strong>Trade detail — executions and review</strong></summary>
-
-<img src=".github/assets/screenshot-trade.png" alt="Demo trade detail with a Vela chart of recorded fills, P&L, and trade review controls" width="100%" />
-
-This chart shows a path between generated execution prices. Provider candles and replay are separate, optional inputs; no live market history is pictured here.
-
-</details>
-
-<details>
-<summary><strong>Daily journal — notes beside the day's trades</strong></summary>
-
-<img src=".github/assets/screenshot-journal.png" alt="Daily journal with demo trading stats, intraday P&L, and a Markdown session review" width="100%" />
-
-Keep notes, templates, attachments, and linked trades together with the day's results.
-
-</details>
-
-<details>
-<summary><strong>Prop firms — costs, payouts, and cash returns</strong></summary>
-
-<img src=".github/assets/screenshot-prop-firms.png" alt="Prop firm demo preview with fictional evaluation expenses, payouts received, pending cash, and monthly cash flows" width="100%" />
-
-A separate cash ledger tracks what you spent and actually received, with pending payouts shown separately.
-
-</details>
-
-## Market data and replay
-
-Trade pages initially show recorded fills. Opening a trade or Reports does **not** automatically request market history.
-
-Choose an optional connection in **Settings → Market data**: **London Strategic Edge, Alpaca, OANDA, Binance, Coinbase**, or **Market data CSV**. Provider access, instruments, feeds, and quotas depend on your account; the journal ships no credentials or provider history. Candle uploads use their own OHLCV format, separate from trade statement imports.
-
-On a closed trade, choose the source, exact symbol, and resolution, then select **Load market data**. Replay offers restart, play/pause, stepping, speed, and scrubbing. Confirm the instrument, price basis, and currency before calculating monetary excursions; derivatives also need a contract multiplier.
-
-**MAE/MFE are estimates from observed candles and executions**, not tick-perfect values. They include scaling and partial exits, exclude fees and currency conversion, and remain unavailable when coverage or required inputs are missing. Option-contract history and reversing fills spanning multiple position cycles are currently unsupported. Saved valid estimates can be explored in **Reports → Trade explorer**; batch calculation is an explicit action and can be stopped. Recorded fills and realized P&L remain unchanged.
-
-See the [market data guide](docs/market-data.md) for provider configuration, CSV schema, replay behavior, and calculation limits.
-
-## Prop firm tracking
-
-Track evaluation, verification, funded, instant-funded, and live accounts across your own firms. Keep resets and phase changes as linked records, with expenses, refunds, supporting attachments, and an audit history.
-
-Payout requests and approvals are separate from actual receipts. Partial payments and reversals flow into cash totals on their receipt dates; **cash ROI uses money received and costs paid**, not nominal account size or trading P&L. Currency totals stay separate. Renewal reminders appear in the tracker; they do not charge money or send background notifications.
-
-Use the documented generic CSV template to preview and import expenses, refunds, and money already received. Export filtered cash movements to CSV or the full tracker records with the journal's JSON export. This is a local tracker, with no automatic bank or prop firm sync and no payout-eligibility engine. See the [prop firm guide](docs/prop-firms.md) for workflows, formulas, and import rules.
-
-## Migrating from TradeZella or Tradervue
-
-Export a supported CSV and open **Import → File upload**. Choose the destination account and timezone, inspect the detected format and preview, then import. Unknown headers go to a column mapper; review warnings, errors, and skipped rows before saving.
-
-**Settings → Journal** has separate **Display timezone** and **Default import timezone** fields. Use the broker statement's zone for imports and your preferred zone for trade times, analytics and journal days. Each file can override its statement timezone; the preview shows converted execution times before saving. Existing timestamps are unchanged by settings edits. See [timezone setup and correcting earlier imports](docs/importers.md#statement-and-display-timezones).
-
-- **TradeZella:** trade-level rows become one entry and one exit at the reported average prices. Where the reconciliation check permits it, the difference between price-implied P&L and stated net P&L is folded into fees to preserve the stated result to the cent. Large discrepancies, including contract-multiplier cases, can skip that reconciliation; compare totals with your source export.
-- **Tradervue:** the supported generic fill CSV imports executions directly, including the documented fee fields. It does not need trade-level reconstruction.
-- **Reconstruction limits:** an average-price trade export cannot recover original partial fills or the intratrade price path. MetaTrader 5 deal reports and TradingView strategy exports have their own source and validation rules. The currently documented MT5 formats are HTML/CSV, not XLSX.
-
-See [supported formats and validation status](docs/importers.md). Have an export we do not recognize? An anonymized sample and its export settings help us validate support.
-
-## Export and backup
-
-**Settings → Export JSON** includes accounts (without credentials), executions, trades and annotations, daily journal entries, notebook folders and notes, templates, playbooks and rule checks, routines, missed trades, journal defaults, prop firm records and their audit history, and attachment metadata. Trades also export as CSV; review exports support PDF and PNG.
-
-JSON export excludes credentials, candle datasets, saved market-data estimates, and attachment binaries, and there is no general JSON restore importer in this release. For a complete local backup, stop the app and copy the entire data directory, including attachments and the hidden `.secret` file if generated. If you supply `JOURNAL_SECRET`, retain that value separately so encrypted credentials remain readable. Keep original candle CSVs as well.
-
-Default locations: `apps/web/data/` for the pnpm commands above, or the host's `./data` bind mount for Docker. `JOURNAL_DATA_DIR` overrides the app's path.
-
-## Monorepo layout
-
-| Package                                    | What it is                                                                                                                        |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| [`packages/core`](packages/core)           | `@luxalgo/journal-core`: pure domain engine (round trips, metrics, calendar, Edge Score). No IO, no framework, fully unit-tested. |
-| [`packages/importers`](packages/importers) | `@luxalgo/journal-importers`: statement parsers + migration importers. Zero-dependency CSV/HTML parsing.                          |
-| [`apps/web`](apps/web)                     | The app: Next.js 15, SQLite (Drizzle), Tailwind, Recharts/ECharts, Vela charting, TanStack Table, ai-sdk.                         |
-
-### Use the engine in your own app
-
-The math and importers are plain packages on npm, with no framework and no IO:
+- Node.js **22+**, pnpm **11.0.8** (pinned in `package.json`) and Python 3.
+- PostgreSQL command-line tools (`initdb`, `pg_ctl`, `psql`) on `PATH` for local development and database integration tests.
+- macOS and Xcode for the iOS app; deployment target iOS **17+**.
+- A Git checkout of this repository and local configuration kept outside version control.
 
 ```bash
-npm install @luxalgo/journal-core @luxalgo/journal-importers
+git clone https://github.com/EAniwa/trade-journal.git
+cd trade-journal
+pnpm install --frozen-lockfile
 ```
 
-The example below targets the workspace APIs in this checkout; published npm versions may lag behind.
+## Run Tradeform with local PostgreSQL
 
-```ts
-import { buildRoundTrips, computeMetrics, computeEdgeScore } from "@luxalgo/journal-core";
-import { parseAuto } from "@luxalgo/journal-importers";
-
-const parsed = parseAuto(csvText, { timeZone: "America/New_York" });
-if (!parsed) throw new Error("Unrecognized format: offer a column mapping.");
-if (parsed.errors?.length) throw new Error(parsed.errors.join("\n"));
-if (parsed.needsSymbol) throw new Error("Supply the missing symbol and parse again.");
-// Review parsed.warnings and parsed.skippedRows before saving.
-const executions = parsed.executions.map((fill) => ({
-  ...fill,
-  id: crypto.randomUUID(),
-  accountId: "my-account",
-  source: "import" as const,
-}));
-const trades = buildRoundTrips(executions, { method: "fifo" });
-const metrics = computeMetrics(trades, { timeZone: "America/New_York" });
-const edge = computeEdgeScore(metrics);
-```
+The helper uses macOS-oriented `/private/tmp` paths. Its temporary cluster is for development/testing, not durable production storage.
 
 ```bash
-pnpm test          # tests for the core, importers, and app logic
-pnpm typecheck     # all packages
-pnpm format:check  # prettier
-pnpm build         # production build
+python3 scripts/hosted-postgres.py
+JOURNAL_PREVIEW=1 NEXT_PUBLIC_JOURNAL_DEMO=0 pnpm build
+JOURNAL_CONFIG_FILE=/private/tmp/trade-journal-hosted-config.json python3 scripts/hosted-local.py stack
 ```
 
-## Principles
+Open **http://localhost:3002/workspace**, create an email account and sign in. The launcher starts the web preview on port **3002**, the API on loopback port **4000**, and a background worker. Stop it with Ctrl+C. Rebuild and restart after source changes; the preview serves the production build and does not hot reload.
 
-MIT. No journal analytics or tracking service. The self-hosted journal stands alone; the hosted journal inside LuxAlgo is a separate service built on the same open engine. LuxAlgo integrations are optional bridges, never dependencies. Sanctioned APIs only.
+The local helper creates restricted roles and writes generated connection credentials to a mode-0600 temporary configuration file. Never commit that file. The local launcher enables registration and, for a local runtime, the server demo endpoint; production configuration must explicitly control both.
 
-External requests serve the features you choose: broker sync, market history, and Anthropic- or OpenAI-powered reflection. Browser dictation may use the browser vendor's speech service ([browser speech recognition behavior](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)). Next.js has its own [framework telemetry setting](https://nextjs.org/telemetry); set `NEXT_TELEMETRY_DISABLED=1` to disable it when running or building the app.
+The original SQLite application can still be run separately with `pnpm dev` on port 3000. Its data model and authentication differ from Tradeform hosted mode. Hosted mode blocks the legacy SQLite API routes. Do not use the original Docker setup as a deployment recipe for the new PostgreSQL stack.
 
-## Disclaimer
+## Run with Supabase
 
-Trade Journal reports and analyzes what your broker reports. Nothing it computes or generates (including AI recaps, critiques, and answers) is investment advice, and no metric predicts future results. Verify important numbers against your broker's own statements.
+The configured development stack uses an ignored root `supabase-runtime.json` when present. An explicit `JOURNAL_CONFIG_FILE` overrides it. A fresh clone does not include credentials or private connection configuration.
 
-## License
+Follow [the Supabase migration guide](docs/supabase-migration.md) to provision restricted roles, transfer data and verify isolation. The transfer utility refuses an already populated target and does not remove source data. It supports the PostgreSQL journal, not an automatic migration of legacy SQLite journals.
 
-Code is licensed under [MIT](LICENSE) © [LuxAlgo Global, LLC](https://luxalgo.com). The project name and LuxAlgo marks are covered by the [trademark policy](TRADEMARKS.md). Security reports: see [SECURITY.md](SECURITY.md).
+```bash
+JOURNAL_CONFIG_FILE=/absolute/path/to/private-runtime.json python3 scripts/hosted-local.py stack
+```
+
+The runtime file contains API/worker connection URLs and optional schema, TLS, CA certificate and pool settings. Keep it private with mode 0600. Certificate verification is required for remote database connections. The tests launcher always uses the isolated local test configuration rather than this remote runtime.
+
+To inspect registered users safely in the Supabase SQL editor:
+
+```sql
+SELECT id, email, created_at
+FROM tradeform.journal_users
+ORDER BY created_at DESC;
+
+SELECT id, user_id, name, currency
+FROM tradeform.journal_accounts;
+```
+
+Avoid selecting password hashes, session hashes or connection credentials for routine inspection.
+
+## Server configuration
+
+| Variable | Purpose |
+| --- | --- |
+| `JOURNAL_CONFIG_FILE` | Private JSON configuration used by the Python launcher. |
+| `JOURNAL_DATABASE_URL` | Restricted API database connection. |
+| `JOURNAL_WORKER_URL` | Restricted worker connection for queue functions. |
+| `JOURNAL_DATABASE_SCHEMA` | Database schema (`public` locally; `tradeform` for the provisioned Supabase runtime). |
+| `JOURNAL_DATABASE_SSL` | Set to `1` for verified remote TLS. |
+| `JOURNAL_DATABASE_CA_FILE` | Optional CA certificate file for the database. |
+| `JOURNAL_DATABASE_POOL_MAX` | API/worker pool size; budget total connections across all replicas. |
+| `JOURNAL_SERVICE_URL` | Private API URL used by the web proxy. |
+| `JOURNAL_HOSTED_ONLY` | Set to `1` to isolate hosted mode from legacy SQLite routes. |
+| `JOURNAL_ALLOW_REGISTRATION` | Set to `1` to allow email registration. |
+| `JOURNAL_DEMO` | Server demo access; keep disabled in production. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` | Optional backend Google OAuth configuration. |
+
+Do not put secrets into `NEXT_PUBLIC_` variables. Apply SQL migrations with a trusted migration owner, not a runtime role. See [scaling and deployment notes](docs/scaling.md) for role restrictions, network boundaries and remaining load-test work.
+
+## iOS simulator and phone
+
+Open `apps/ios/TradeJournal.xcodeproj` in Xcode, select the **TradeJournal** scheme and an iOS simulator, then run. Simulator builds use `http://localhost:3002` by default. Start the server first.
+
+For a phone, set **`JOURNAL_SERVER_URL`** once in Xcode build settings to a server the phone can reach. The current Debug configuration includes a local development Wi-Fi address; replace it for your network. A phone cannot reach the Mac through `localhost`. Keep the Mac/server running and use the same network for local testing. Use a stable HTTPS application URL for distribution.
+
+Select your own signing team for a physical device and complete Apple’s device trust/developer-mode steps as required. The checked-in development team setting is not a signing credential. The bundle identifier remains `com.tradejournal.ios` to preserve installed data. Web-only updates require a server rebuild/restart and app reload; native assets and configuration changes require a new iOS build.
+
+See [the iOS guide](apps/ios/README.md) for native behavior and verification.
+
+## CSV imports and performance
+
+A `.csv` extension alone does not establish a supported statement format. Columns and record structure must match a parser. The hosted workspace uses automatic detection; the original application’s general CSV mapping UI has not been ported into it. See [import format documentation](docs/importers.md) and the parser tests for supported layouts.
+
+TD activity exports are supported, including statement preambles, signed buy/sell quantities, fees, option expiry rows and contract multipliers. Non-trading cash/interest rows do not become executions. Preserve the original broker export and select its timezone. Duplicate fills are skipped **within the chosen account**; an already imported file reports existing fills rather than adding another copy.
+
+Performance is scoped to one account and its currency. Closed trades are assigned to periods by their close date; account timezone and the selected end date define the calendar window. Sector breakdowns use saved trade annotations; missing sectors appear as **Unclassified**. There is no automatic sector lookup or live market-data enrichment in this workspace.
+
+## Tests and verification
+
+```bash
+python3 scripts/hosted-postgres.py
+python3 scripts/hosted-local.py tests
+pnpm --filter journal-api typecheck
+JOURNAL_PREVIEW=1 NEXT_PUBLIC_JOURNAL_DEMO=0 pnpm build
+```
+
+Run integration tests against the isolated local cluster. Their fixtures create and remove disposable users and accounts; never point the test connections at a production database. `pnpm test` runs Vitest, but database integration coverage requires the connection variables supplied by the helper.
+
+Coverage includes account ownership, forced RLS, sessions, imports and duplicate handling, job recovery, optimistic document updates, period calculations, account switching with delayed requests, mobile-safe import identifiers, same-origin request checks, and account deletion/confirmation/cancellation. An optional TD test reads an external real statement only when `TD_REAL_STATEMENT` is set; that personal statement is not in this repository.
+
+Simulator compilation can be checked without signing:
+
+```bash
+xcodebuild -project apps/ios/TradeJournal.xcodeproj -scheme TradeJournal \
+  -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+```
+
+Measured local and remote latency results live in [local benchmark results](docs/hosted-local-latency.json) and [Supabase verification results](docs/supabase-live-verification.json). They describe specific fixtures and machines, not guaranteed production latency or concurrent-user capacity.
+
+## Known limits and next iterations
+
+- Google integration is prepared and tested with controlled fixtures; real sign-in awaits Google OAuth credentials and an end-to-end provider test. Email registration/login works independently.
+- Email verification and password recovery are not implemented.
+- Permanent application hosting, a stable HTTPS URL, operational monitoring, tested backup restoration and App Store distribution remain deployment work.
+- The worker rebuilds account trades after imports. Large account histories and sustained multi-user load need representative profiling before promising scale.
+- Legacy broker sync, AI reflection, market replay, prop-firm tools, attachments and broader notebook/playbook features have not been ported into the hosted workspace.
+- Supabase Auth migration and account linking are separate from the completed database cutover.
+- The iOS app depends on connectivity; no offline synchronization is implemented.
+
+## Further documentation
+
+- [Architecture and scaling](docs/scaling.md)
+- [Supabase migration and cutover](docs/supabase-migration.md)
+- [Google OAuth integration](docs/google-login.md)
+- [Branding](docs/branding.md)
+- [Import formats](docs/importers.md)
+- [Edge Score](docs/edge-score.md)
+- [Original SQLite project guide](docs/upstream-readme.md)
+- [Contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md)
+
+## License and attribution
+
+The underlying project is licensed under [MIT](LICENSE), © LuxAlgo Global, LLC. Preserve its license and attribution. Tradeform is this fork’s product branding; LuxAlgo’s marks remain subject to the upstream [trademark policy](TRADEMARKS.md). Journal calculations describe recorded trading results and should be checked against broker statements.

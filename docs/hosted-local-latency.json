@@ -1,0 +1,32 @@
+{
+  "scope": "Local production Next.js proxy + PostgreSQL API; ten isolated users, 60 generated fills each. Not distributed load or large-history capacity.",
+  "routes": {
+    "overview": {
+      "requests": 100,
+      "concurrency": 10,
+      "users": 10,
+      "p50_ms": 14.2,
+      "p95_ms": 103.76,
+      "p99_ms": 144.52,
+      "errors": 0
+    },
+    "trades?limit=30": {
+      "requests": 100,
+      "concurrency": 10,
+      "users": 10,
+      "p50_ms": 15.63,
+      "p95_ms": 22.89,
+      "p99_ms": 25.44,
+      "errors": 0
+    },
+    "settings": {
+      "requests": 100,
+      "concurrency": 10,
+      "users": 10,
+      "p50_ms": 15.05,
+      "p95_ms": 23.94,
+      "p99_ms": 39.28,
+      "errors": 0
+    }
+  }
+}

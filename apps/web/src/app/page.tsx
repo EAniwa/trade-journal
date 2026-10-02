@@ -98,7 +98,13 @@ function Dashboard() {
 
   return (
     <>
-      <FilterBar title="Dashboard" actions={<AddTradeDialog onSaved={refresh} />} />
+      <div className="journal-overview-intro">
+        <div><p className="journal-eyebrow">YOUR TRADING, IN FOCUS</p>
+          <h1>Find your edge.</h1>
+          <p>Understand your performance. Build your next best trade.</p></div>
+        <Link href="/journal" className="journal-reflect-link">Review your session <span aria-hidden="true">↗</span></Link>
+      </div>
+      <FilterBar title="Performance" actions={<AddTradeDialog onSaved={refresh} />} />
       <DashboardContent
         data={data}
         loading={loading}

@@ -4,6 +4,7 @@ import type { ImportedExecution } from "@luxalgo/journal-importers";
 import { accounts, db } from "@/db";
 import { decryptJson, encryptJson } from "./crypto";
 import { nowIso } from "./ids";
+import { singleFlight } from "./request-policy";
 import { insertExecutions, type InsertResult } from "./executions";
 import { getImportTimeZone } from "./settings";
 import { requireValue } from "./api";
@@ -23,7 +24,7 @@ export interface SyncOutcome extends InsertResult {
   syncedAt: string;
 }
 
-export const syncAccount = async (accountId: string): Promise<SyncOutcome> => {
+const performSync = async (accountId: string): Promise<SyncOutcome> => {
   const account = db.select().from(accounts).where(eq(accounts.id, accountId)).get();
   if (!account) throw new Error("Account not found");
   if (account.kind !== "sync" || !account.credentialsEnc) {
@@ -108,4 +109,13 @@ export const syncAccount = async (accountId: string): Promise<SyncOutcome> => {
   }
 
   return { accountId, ...result, equity, positions: positions.length, syncedAt };
+};
+
+const coalesceSync = singleFlight<SyncOutcome>();
+export const syncAccount = (accountId: string): Promise<SyncOutcome> => {
+  // Never combine work captured under different connection or timezone settings.
+  const account = db.select().from(accounts).where(eq(accounts.id, accountId)).get();
+  const key = JSON.stringify([accountId, getImportTimeZone(), account?.broker,
+    account?.kind, account?.credentialsEnc, account?.ibkrSyncTimeZone]);
+  return coalesceSync(key, () => performSync(accountId));
 };

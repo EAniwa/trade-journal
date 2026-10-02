@@ -174,7 +174,7 @@ export const buildRoundTrips = (
     group.sort(compareExecutions);
     const { accountId, symbol } = group[0]!;
     const importGroup = group[0]!.importMetadata?.group;
-    const contractMultiplier = options.multipliers?.[symbol];
+    const contractMultiplier = options.multipliers?.[symbol] ?? group.find(e => e.importMetadata?.contractMultiplier !== undefined)?.importMetadata?.contractMultiplier;
     const multiplier = contractMultiplier ?? 1;
     const assetClass = group.find((e) => e.assetClass)?.assetClass;
 

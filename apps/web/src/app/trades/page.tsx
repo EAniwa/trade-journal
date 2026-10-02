@@ -17,6 +17,7 @@ import { ArrowUpDown, Check, Columns3, Download, Tag, Trash2 } from "lucide-reac
 import { dayKeyOf, type TradeMetrics } from "@luxalgo/journal-core";
 import { FilterBar, useFilters } from "@/components/filter-bar";
 import { Pnl } from "@/components/pnl";
+import { MobileTradeCard } from "@/components/mobile-trade-card";
 import { MonetaryValue } from "@/components/privacy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -425,7 +426,13 @@ function Trades() {
           <Skeleton className="h-96" />
         ) : (
           <Card>
-            <div className="relative min-w-0 max-w-full overflow-x-auto">
+            <div className="journal-mobile-trades">
+              {visibleRows.map((row) => <MobileTradeCard key={row.id} trade={row.original}
+                query={query} timeZone={timeZone} selected={row.getIsSelected()}
+                onSelected={(value) => row.toggleSelected(value)} />)}
+              {visibleRows.length === 0 && <p className="p-8 text-center text-sm text-muted-foreground">No trades match these filters.</p>}
+            </div>
+            <div className="journal-desktop-trades relative min-w-0 max-w-full overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   {table.getHeaderGroups().map((headerGroup) => (

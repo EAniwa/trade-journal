@@ -1,3 +1,4 @@
+import { tdDirect } from "./formats/td";
 import { parseCsv } from "./csv";
 import { ibkr } from "./formats/ibkr";
 import { metatrader } from "./formats/metatrader";
@@ -33,6 +34,7 @@ const LEGACY_FORMATS: ImportFormat[] = [
   tradovate,
   webull,
   dastrader,
+  tdDirect,
 ];
 
 export const FORMATS: ImportFormat[] = [...LEGACY_FORMATS, historyFormat];

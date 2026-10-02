@@ -25,3 +25,20 @@ data/
 .DS_Store
 *.log
 coverage/
+
+# Xcode local build and user state
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Isolated production design preview
+.next-preview/
+
+# Private cloud database configuration
+supabase-connection.json
+supabase-runtime.json
+.supabase-*.json
+
+# Local role credentials and hosted runtime files
+supabase-role-secrets.json
+trade-journal-hosted-config.json

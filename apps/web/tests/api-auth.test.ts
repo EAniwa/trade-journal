@@ -39,3 +39,24 @@ describe("optional journal password protection", () => {
     expect((await handler(() => ok({ login: true }), { public: true })()).status).toBe(200);
   });
 });
+
+
+describe("API diagnostics", () => {
+  it("returns timing and a request identifier without leaking internal errors", async () => {
+    const response = await handler(() => { throw new Error("postgres://private-secret"); })();
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
+    expect(body.requestId).toBe(response.headers.get("X-Request-Id"));
+    expect(response.headers.get("Server-Timing")).toMatch(/^app;dur=\d+\.\d{2}$/);
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+  });
+  it("rejects an oversized request before running its action", async () => {
+    const action = vi.fn((_request: Request) => ok({ saved: true }));
+    const response = await handler(action)(new Request("https://journal.example/api/executions", {
+      method: "POST", headers: { "content-length": "99999999" },
+    }));
+    expect(response.status).toBe(413);
+    expect(action).not.toHaveBeenCalled();
+  });
+});

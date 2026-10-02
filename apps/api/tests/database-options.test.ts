@@ -1,0 +1,4 @@
+import { expect,it } from 'vitest';
+import { databaseOptions } from '../src/database-options';
+it('keeps local defaults while supporting the private Supabase schema',()=>{expect(databaseOptions({})).toMatchObject({max:12,options:'-c search_path=public,pg_temp'});expect(databaseOptions({JOURNAL_DATABASE_SCHEMA:'tradeform',JOURNAL_DATABASE_POOL_MAX:'4',JOURNAL_DATABASE_SSL:'1'})).toMatchObject({max:4,options:'-c search_path=tradeform,pg_temp',ssl:{rejectUnauthorized:true}});});
+it('rejects SQL fragments and invalid pool sizes',()=>{for(const schema of ['public;DROP TABLE users','tradeform,public','"public"','../private',''])expect(()=>databaseOptions({JOURNAL_DATABASE_SCHEMA:schema})).toThrow();for(const max of ['0','51','NaN','1.5'])expect(()=>databaseOptions({JOURNAL_DATABASE_POOL_MAX:max})).toThrow();});
